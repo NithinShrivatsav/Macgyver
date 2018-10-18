@@ -1,0 +1,3 @@
+/home/nithin/Desktop/ThreeDCV/SHOTC/build/CMakeFiles/edit_cache.dir
+/home/nithin/Desktop/ThreeDCV/SHOTC/build/CMakeFiles/rebuild_cache.dir
+/home/nithin/Desktop/ThreeDCV/SHOTC/build/CMakeFiles/shotC.dir
