@@ -1,0 +1,66 @@
+#include<iostream>
+#include<pcl/point_types.h>
+#include<pcl/io/ply_io.h>
+#include<pcl/search/search.h>
+#include<pcl/search/kdtree.h>
+#include<string.h>
+#include<stdlib.h>
+#include<dirent.h>
+#include<stdio.h>
+#include<unistd.h>
+#include<sys/stat.h>
+#include<sys/types.h>
+using namespace std;
+
+int main(int argc, char** argv)
+{
+	
+	DIR *dp;
+	struct dirent *dirp;
+	struct stat filestat;
+	string main_folder, subfolder,filepath,folder;
+	string folder_type[16]={"Hammer1","Hammer2","Hammer3","Hammer4","Hammer5","Hammer6","Hammer7","Hammer8","Hammer9","Spatula1","Spatula2","Spatula3","Spatula4","Spatula5","Spatula6","Spatula7"};
+	main_folder = "/home/nithin/Desktop/Final_Dataset";
+	for(int l = 1;l<=16;l++)
+	{
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_primary(new pcl::PointCloud<pcl::PointXYZRGB>);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_secondary(new pcl::PointCloud<pcl::PointXYZRGB>);			
+		subfolder = folder_type[l];
+		filepath = main_folder + "/" + subfolder;
+		
+        	dp = opendir(filepath.c_str());
+		if(dp == NULL)
+		    {
+		        return -1;
+		    }
+		while(dirp = readdir(dp))
+		{
+			folder = filepath +"/"+dirp->d_name;
+			if (stat( folder.c_str(), &filestat )) continue;
+            		if (S_ISDIR( filestat.st_mode ))         continue;
+			if(pcl::io::loadPLYFile<pcl::PointXYZRGB>(folder,*cloud)==-1)
+			{
+				cout<<"Couln't Read File";
+				return -1;
+			}
+			cout<<"Cloud Points "<<int(cloud->points[0].r);
+			cloud_primary->points.push_back(cloud->points[0]);
+			for(size_t i=1;i<cloud->points.size();i++)
+			{
+				if((int(cloud->points[i].r)==int(cloud->points[0].r)) && (int(cloud->points[i].g)==int(cloud->points[0].g)) && (int(cloud->points[i].b)==int(cloud->points[0].b)))
+				{
+					cloud_primary->points.push_back(cloud->points[i]);			
+				}
+				else
+				{
+					cloud_secondary->points.push_back(cloud->points[i]);
+				}
+			}
+				pcl::io::savePLYFileASCII(main_folder+"/"+subfolder+"/"+"output1.ply",*cloud_primary);
+				pcl::io::savePLYFileASCII(main_folder+"/"+subfolder+"/"+"output2.ply",*cloud_primary);
+		}
+		closedir(dp);
+	}
+	return 0;
+}
